@@ -182,8 +182,14 @@ function Index() {
           <header className="mb-8 text-center">
             <div className="relative mx-auto mb-5 size-20 sm:size-[90px]">
               <div className="logo-ring absolute inset-0 rounded-full" />
-              <div className="logo-orb flex size-full items-center justify-center rounded-full">
-                <Zap className="size-9 fill-current text-accent-foreground" />
+              <div className="logo-orb flex size-full items-center justify-center overflow-hidden rounded-full">
+                <img
+                  src="/laczek-logo.jpg"
+                  alt="LACZEK MD logo"
+                  width={90}
+                  height={90}
+                  className="size-full object-cover"
+                />
               </div>
             </div>
             <h1 className="mb-2 text-[26px] font-bold tracking-tight text-foreground sm:text-[28px]">
