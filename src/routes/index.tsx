@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Check, Copy, Info, Key, Lightbulb, Loader2, Hourglass, Phone, Zap } from "lucide-react";
+import { Check, Copy, Info, Key, Lightbulb, Loader2, Hourglass, Phone } from "lucide-react";
 
 import { CodeBox } from "@/components/laczek/CodeBox";
 import { ServerPicker, type ServerStatus } from "@/components/laczek/ServerPicker";
@@ -182,8 +182,14 @@ function Index() {
           <header className="mb-8 text-center">
             <div className="relative mx-auto mb-5 size-20 sm:size-[90px]">
               <div className="logo-ring absolute inset-0 rounded-full" />
-              <div className="logo-orb flex size-full items-center justify-center rounded-full">
-                <Zap className="size-9 fill-current text-accent-foreground" />
+              <div className="logo-orb flex size-full items-center justify-center overflow-hidden rounded-full">
+                <img
+                  src="/laczek-logo.jpg"
+                  alt="LACZEK MD logo"
+                  width={90}
+                  height={90}
+                  className="size-full object-cover"
+                />
               </div>
             </div>
             <h1 className="mb-2 text-[26px] font-bold tracking-tight text-foreground sm:text-[28px]">
@@ -229,7 +235,7 @@ function Index() {
                   value={phone}
                   onChange={(event) => setPhone(event.target.value.replace(/\D/g, ""))}
                   onFocus={() => setError(null)}
-                  placeholder="92342758xxxxx"
+                  placeholder="25670423xxxx"
                   className="w-full rounded-2xl border-2 border-border bg-surface-raised py-4 pl-14 pr-5 text-[15px] text-foreground transition-all placeholder:text-muted-foreground/70 focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15"
                 />
               </div>
