@@ -65,10 +65,11 @@ export function ServerPicker({
               ? `Server ${serverNumber}${status.kind === "checking" ? " (Checking...)" : ""}`
               : "Select Server"}
           </span>
-          <span className="mt-0.5 flex gap-4 text-xs text-muted-foreground">
+          <span className="mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-xs whitespace-nowrap text-muted-foreground">
             <StatusLeft status={status} />
             <StatusRight status={status} />
           </span>
+
         </span>
       </span>
       <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-border bg-surface-raised px-4 py-2 text-xs font-medium text-foreground">
