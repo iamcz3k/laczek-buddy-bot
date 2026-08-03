@@ -85,15 +85,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "LACZEK MD | WhatsApp Pairing Code Generator" },
       {
         name: "description",
-        content: "LACZEK MD — generate your WhatsApp pairing code instantly.",
+        content: "Generate a WhatsApp pairing code for LACZEK MD in seconds. Pick a server, enter your number, no deployment needed.",
       },
-      { property: "og:title", content: "LACZEK MD" },
+      { property: "og:title", content: "LACZEK MD | WhatsApp Pairing Code Generator" },
       {
         property: "og:description",
-        content: "LACZEK MD — generate your WhatsApp pairing code instantly.",
+        content: "Generate a WhatsApp pairing code for LACZEK MD in seconds. Pick a server, enter your number, no deployment needed.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "LACZEK MD | WhatsApp Pairing Code Generator" },
+      { name: "twitter:description", content: "Generate a WhatsApp pairing code for LACZEK MD in seconds. Pick a server, enter your number, no deployment needed." },
     ],
     links: [
       {
