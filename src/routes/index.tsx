@@ -6,6 +6,7 @@ import { Check, Copy, Info, Key, Lightbulb, Loader2, Hourglass, Phone } from "lu
 
 import { CodeBox } from "@/components/laczek/CodeBox";
 import { ServerPicker, type ServerStatus } from "@/components/laczek/ServerPicker";
+import { SiteMenu } from "@/components/laczek/SiteMenu";
 import { generatePairCode, getServerStatus } from "@/lib/pair.functions";
 
 export const Route = createFileRoute("/")({
@@ -179,6 +180,9 @@ function Index() {
 
       <div className="relative z-10 flex min-h-screen items-center justify-center p-5">
         <div className="card-matte animate-slide-in w-full max-w-[480px] rounded-[30px] border border-border p-8 px-6 sm:px-8">
+          <div className="absolute right-4 top-4 z-20">
+            <SiteMenu />
+          </div>
           <header className="mb-8 text-center">
             <div className="relative mx-auto mb-5 size-20 sm:size-[90px]">
               <div className="logo-ring absolute inset-0 rounded-full" />
@@ -241,7 +245,7 @@ function Index() {
               </div>
               <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Lightbulb className="size-3" />
-                Include country code (e.g., 92 for Pakistan)
+                Include country code (e.g., 256 for Uganda)
               </p>
             </div>
 
