@@ -16,9 +16,8 @@ export async function handleMediaCommand({ sock, jid, message, name, logger }) {
   const quoted = quotedMessage(message);
   const source = quoted || message;
   const hasImage = Boolean(source.message?.imageMessage || source.message?.stickerMessage);
-  const hasVideo = Boolean(source.message?.videoMessage);
-  if (!hasImage && !(name === "sticker" && hasVideo)) {
-    await sock.sendMessage(jid, { text: "Reply to an image or short video with this command." }, { quoted: message });
+  if (!hasImage) {
+    await sock.sendMessage(jid, { text: "Reply to an image or sticker with this command." }, { quoted: message });
     return true;
   }
   try {
