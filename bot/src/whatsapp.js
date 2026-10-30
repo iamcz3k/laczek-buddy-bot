@@ -57,6 +57,17 @@ export async function disconnectWhatsApp() {
   latestPairingCode = null;
 }
 
+function scheduleReconnect(reason) {
+  if (manuallyStopped) return;
+  clearTimeout(reconnectTimer);
+  reconnectTimer = setTimeout(() => {
+    connect().catch((error) => {
+      logger.error({ err: error, reason }, "WhatsApp reconnect attempt failed");
+      scheduleReconnect("retry-after-startup-error");
+    });
+  }, 4000);
+}
+
 async function connect() {
   manuallyStopped = false;
   connectionState = "connecting";
@@ -96,10 +107,7 @@ async function connect() {
       const statusCode = lastDisconnect?.error?.output?.statusCode;
       const shouldReconnect = !manuallyStopped && statusCode !== DisconnectReason.loggedOut;
       logger.warn({ statusCode, shouldReconnect }, "WhatsApp connection closed");
-      if (shouldReconnect) {
-        clearTimeout(reconnectTimer);
-        reconnectTimer = setTimeout(() => connect().catch((error) => logger.error({ err: error }, "Reconnect failed")), 4000);
-      }
+      if (shouldReconnect) scheduleReconnect("connection-closed");
     }
   });
 
@@ -112,7 +120,13 @@ async function connect() {
 }
 
 export async function startWhatsApp() {
-  await connect();
+  try {
+    await connect();
+  } catch (error) {
+    connectionState = "disconnected";
+    logger.error({ err: error }, "Initial WhatsApp connection failed");
+    scheduleReconnect("initial-startup-error");
+  }
 }
 
 export async function stopWhatsApp() {
