@@ -21,6 +21,10 @@ services:
         value: .
       - key: AUTH_DIR
         value: /var/data/auth
+      - key: DATA_DIR
+        value: /var/data/data
+      - key: MAX_MEDIA_BYTES
+        value: 12582912
       - key: DASHBOARD_API_KEY
         generateValue: true
       - key: LOG_LEVEL
