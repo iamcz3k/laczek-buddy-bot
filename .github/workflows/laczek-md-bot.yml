@@ -1,0 +1,26 @@
+name: LACZEK MD Bot CI
+
+on:
+  push:
+    branches: ["feat/independent-whatsapp-backend"]
+    paths: ["bot/**", "render.yaml", ".github/workflows/laczek-md-bot.yml"]
+  pull_request:
+    branches: ["main"]
+    paths: ["bot/**", "render.yaml", ".github/workflows/laczek-md-bot.yml"]
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: bot/package-lock.json
+      - run: npm install --package-lock-only
+      - run: npm install
+      - run: npm run check
