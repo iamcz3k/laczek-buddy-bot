@@ -75,7 +75,6 @@ export async function handleGroupModeration({ sock, message, logger }) {
     || message.message?.videoMessage?.caption || "";
   const settings = await getGroupSettings(jid);
   const sender = ctx.sender;
-  const botMention = ctx.admins.includes(sender);
 
   if (settings.antiLink && !ctx.isSenderAdmin && linkPattern.test(body)) {
     if (ctx.isBotAdmin) {
@@ -111,6 +110,8 @@ export async function handleGroupModeration({ sock, message, logger }) {
   }
 }
 export async function runGroupCommand({ sock, jid, message, name, args }) {
+  const groupCommands = new Set(["groupinfo", "antilink", "antispam", "kick", "promote", "demote", "warn", "warnings", "resetwarn", "tagall"]);
+  if (!groupCommands.has(name)) return false;
   if (!jid.endsWith("@g.us")) {
     await sock.sendMessage(jid, { text: "This command only works inside a group." }, { quoted: message });
     return true;
