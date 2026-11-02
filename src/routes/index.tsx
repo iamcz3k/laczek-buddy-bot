@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Check, Copy, Info, Key, Lightbulb, Loader2, Hourglass, Phone } from "lucide-react";
+import { Check, Copy, Info, Key, Lightbulb, Loader2, Hourglass, Phone, ShieldAlert } from "lucide-react";
 
 import { CodeBox } from "@/components/laczek/CodeBox";
 import { ServerPicker, type ServerStatus } from "@/components/laczek/ServerPicker";
@@ -201,6 +201,12 @@ function Index() {
             </h1>
             <p className="text-sm text-muted-foreground">Generate Your Pairing Code</p>
           </header>
+
+          <Link to="/ban-bot" className="mb-6 flex items-center gap-3 rounded-2xl border border-accent/40 bg-accent/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-accent/15">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-background text-accent"><ShieldAlert className="size-6" /></span>
+            <span className="min-w-0 flex-1"><strong className="block text-sm text-foreground">LaCzek Ban Bot</strong><span className="mt-0.5 block text-xs text-muted-foreground">Account safety & moderation reports</span></span>
+            <span className="text-lg text-accent">→</span>
+          </Link>
 
           <ServerPicker
             open={pickerOpen}
