@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as CommandsRouteImport } from './routes/commands'
 import { Route as HowToUseRouteImport } from './routes/how-to-use'
+import { Route as BanBotRouteImport } from './routes/ban-bot'
+import { Route as AdminV3RouteImport } from './routes/adminv3'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,19 +37,28 @@ const HowToUseRoute = HowToUseRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const BanBotRoute = BanBotRouteImport.update({ id: '/ban-bot', path: '/ban-bot', getParentRoute: () => rootRouteImport } as any)
+const AdminV3Route = AdminV3RouteImport.update({ id: '/adminv3', path: '/adminv3', getParentRoute: () => rootRouteImport } as any)
+
 export interface FileRoutesByFullPath {
+  '/ban-bot': typeof BanBotRoute
+  '/adminv3': typeof AdminV3Route
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/commands': typeof CommandsRoute
   '/how-to-use': typeof HowToUseRoute
 }
 export interface FileRoutesByTo {
+  '/ban-bot': typeof BanBotRoute
+  '/adminv3': typeof AdminV3Route
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/commands': typeof CommandsRoute
   '/how-to-use': typeof HowToUseRoute
 }
 export interface FileRoutesById {
+  '/ban-bot': typeof BanBotRoute
+  '/adminv3': typeof AdminV3Route
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
@@ -56,10 +67,10 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/commands' | '/how-to-use'
+  fullPaths: '/' | '/about' | '/commands' | '/how-to-use' | '/ban-bot' | '/adminv3'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/commands' | '/how-to-use'
-  id: '__root__' | '/' | '/about' | '/commands' | '/how-to-use'
+  to: '/' | '/about' | '/commands' | '/how-to-use' | '/ban-bot' | '/adminv3'
+  id: '__root__' | '/' | '/about' | '/commands' | '/how-to-use' | '/ban-bot' | '/adminv3'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +78,8 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   CommandsRoute: typeof CommandsRoute
   HowToUseRoute: typeof HowToUseRoute
+  BanBotRoute: typeof BanBotRoute
+  AdminV3Route: typeof AdminV3Route
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +112,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HowToUseRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ban-bot': { id: '/ban-bot'; path: '/ban-bot'; fullPath: '/ban-bot'; preLoaderRoute: typeof BanBotRouteImport; parentRoute: typeof rootRouteImport }
+    '/adminv3': { id: '/adminv3'; path: '/adminv3'; fullPath: '/adminv3'; preLoaderRoute: typeof AdminV3RouteImport; parentRoute: typeof rootRouteImport }
   }
 }
 
@@ -107,6 +122,8 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   CommandsRoute: CommandsRoute,
   HowToUseRoute: HowToUseRoute,
+  BanBotRoute: BanBotRoute,
+  AdminV3Route: AdminV3Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
