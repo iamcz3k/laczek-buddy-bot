@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as CommandsRouteImport } from './routes/commands'
-import { Route as HowToUseRouteImport } from './routes/how-to-use'
+import { Route as HowToUseRouteImport } from './routes/how-to-use'\nimport { Route as BanBotRouteImport } from './routes/ban-bot'\nimport { Route as AdminV3RouteImport } from './routes/adminv3'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -59,7 +59,7 @@ export interface FileRouteTypes {
   fullPaths: '/' | '/about' | '/commands' | '/how-to-use'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/about' | '/commands' | '/how-to-use'
-  id: '__root__' | '/' | '/about' | '/commands' | '/how-to-use'
+  id: '__root__' | '/' | '/about' | '/commands' | '/how-to-use' | '/ban-bot' | '/adminv3'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -102,7 +102,7 @@ declare module '@tanstack/react-router' {
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
+const BanBotRoute = BanBotRouteImport.update({ id: '/ban-bot', path: '/ban-bot', getParentRoute: () => rootRouteImport } as any)\nconst AdminV3Route = AdminV3RouteImport.update({ id: '/adminv3', path: '/adminv3', getParentRoute: () => rootRouteImport } as any)\n\nconst rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   CommandsRoute: CommandsRoute,
