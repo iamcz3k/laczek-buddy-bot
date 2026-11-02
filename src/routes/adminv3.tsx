@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Users, KeyRound, LockKeyhole, Copy, LogOut, RefreshCw, Ban } from "lucide-react";
+import { ArrowLeft, Users, KeyRound, LockKeyhole, Copy, LogOut, RefreshCw, Ban, Activity, Play, Pause } from "lucide-react";
 import { toast } from "sonner";
 
 import { adminLogin, createAccessKey, getAdminDashboard, revokeAccessKey } from "@/lib/admin.functions";
@@ -43,6 +43,7 @@ function AdminV3() {
   const [dash, setDash] = useState<Dash | null>(null);
   const [label, setLabel] = useState("");
   const [days, setDays] = useState(7);
+  const [monitoring, setMonitoring] = useState(true);
 
   useEffect(() => { setToken(sessionStorage.getItem("lz-admin")); }, []);
 
@@ -55,11 +56,11 @@ function AdminV3() {
   }, [token, logout]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || !monitoring) return;
     load();
-    const t = setInterval(load, 15_000);
+    const t = setInterval(load, 5_000);
     return () => clearInterval(t);
-  }, [token, load]);
+  }, [token, load, monitoring]);
 
   async function login(e: React.FormEvent) {
     e.preventDefault(); setBusy(true);
@@ -88,6 +89,15 @@ function AdminV3() {
   const status = (k: Dash["keys"][number]) =>
     k.revoked ? "Revoked" : k.expires_at && new Date(k.expires_at) < new Date() ? "Expired" : "Active";
 
+  // These entries are derived only from persisted visitor-session and access-key records.
+  const logs = dash ? [
+    ...dash.live.map((v) => ({ id: `visit-${v.session_id}`, at: v.last_seen, kind: "접속", message: `웹사이트 방문 기록 · ${v.path}`, detail: device(v.user_agent) })),
+    ...dash.keys.flatMap((k) => [
+      ...(k.created_at ? [{ id: `created-${k.id}`, at: k.created_at, kind: "열쇠", message: "접근 열쇠 생성", detail: k.label || "이름 없음" }] : []),
+      ...(k.last_used_at ? [{ id: `used-${k.id}`, at: k.last_used_at, kind: "사용", message: "접근 열쇠 사용", detail: `${k.uses}회 사용` }] : []),
+    ]),
+  ].filter((entry) => Boolean(entry.at)).sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()).slice(0, 40) : [];
+
   return <main className="relative min-h-screen bg-background px-4 py-8 sm:px-6"><div className="bg-matte pointer-events-none fixed inset-0 z-0" /><div className="relative z-10 mx-auto max-w-4xl">
     <Link to="/" className="mb-7 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Back to site</Link>
     <section className="card-matte rounded-[28px] border border-border p-6 sm:p-8">
@@ -107,6 +117,18 @@ function AdminV3() {
           {dash && dash.live.length === 0 ? <p className="text-sm text-muted-foreground">Nobody online right now.</p> : null}
           <ul className="divide-y divide-border">{dash?.live.map((v) => <li key={v.session_id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"><span className="flex items-center gap-2"><span className="size-2 rounded-full bg-success" />{device(v.user_agent)} · <span className="font-mono text-muted-foreground">{v.path}</span></span><span className="text-xs text-muted-foreground">joined {ago(v.first_seen)} · seen {ago(v.last_seen)}</span></li>)}</ul>
         </div>
+
+        <section className="rounded-2xl border border-border bg-surface-raised p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2"><Activity className="size-5 text-accent" /><div><h2 className="font-semibold">실시간 보안 기록</h2><p className="text-xs text-muted-foreground">저장된 방문 및 접근 열쇠 기록 · 5초마다 갱신</p></div></div>
+            <button type="button" onClick={() => setMonitoring((v) => !v)} className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm hover:border-accent">
+              {monitoring ? <Pause className="size-4" /> : <Play className="size-4" />}{monitoring ? "중지" : "시작"}
+            </button>
+          </div>
+          <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"><span className={`size-2 rounded-full ${monitoring ? "bg-success animate-pulse" : "bg-muted-foreground"}`} />{monitoring ? "실시간 감시 실행 중" : "감시 일시 중지"}</div>
+          {logs.length === 0 ? <p className="text-sm text-muted-foreground">아직 기록된 활동이 없습니다.</p> : <ul className="max-h-[420px] space-y-2 overflow-y-auto font-mono text-xs">{logs.map((entry) => <li key={entry.id} className="rounded-xl border border-border/70 bg-background/70 p-3"><div className="mb-1 flex flex-wrap items-center justify-between gap-2"><span className="text-accent">[{entry.kind}] {entry.message}</span><time className="text-muted-foreground">{new Date(entry.at).toLocaleString("ko-KP")}</time></div><p className="break-all text-muted-foreground">{entry.detail}</p></li>)}</ul>}
+          <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">이 기록은 실제 데이터베이스에 저장된 방문 세션과 접근 열쇠 활동만 표시합니다. 저장되지 않은 사건이나 외부 계정의 활동은 표시하지 않습니다.</p>
+        </section>
 
         <form onSubmit={generate} className="rounded-2xl border border-border bg-surface-raised p-5">
           <h2 className="mb-3 font-semibold">Generate access key</h2>
