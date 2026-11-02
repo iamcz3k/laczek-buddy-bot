@@ -14,7 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      access_keys: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          key: string
+          label: string
+          last_used_at: string | null
+          revoked: boolean
+          uses: number
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          key: string
+          label?: string
+          last_used_at?: string | null
+          revoked?: boolean
+          uses?: number
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          key?: string
+          label?: string
+          last_used_at?: string | null
+          revoked?: boolean
+          uses?: number
+        }
+        Relationships: []
+      }
+      visitor_sessions: {
+        Row: {
+          first_seen: string
+          last_seen: string
+          path: string
+          session_id: string
+          user_agent: string
+        }
+        Insert: {
+          first_seen?: string
+          last_seen?: string
+          path?: string
+          session_id: string
+          user_agent?: string
+        }
+        Update: {
+          first_seen?: string
+          last_seen?: string
+          path?: string
+          session_id?: string
+          user_agent?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
