@@ -109,6 +109,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HowToUseRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ban-bot': { id: '/ban-bot'; path: '/ban-bot'; fullPath: '/ban-bot'; preLoaderRoute: typeof BanBotRouteImport; parentRoute: typeof rootRouteImport }
+    '/adminv3': { id: '/adminv3'; path: '/adminv3'; fullPath: '/adminv3'; preLoaderRoute: typeof AdminV3RouteImport; parentRoute: typeof rootRouteImport }
   }
 }
 
