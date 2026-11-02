@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, Users, KeyRound, Activity, ShieldCheck, LockKeyhole, Copy } from "lucide-react";
+import { ArrowLeft, Users, KeyRound, Activity, LockKeyhole } from "lucide-react";
 
 export const Route = createFileRoute("/adminv3")({ component: AdminV3 });
 
 function AdminV3() {
   const [password, setPassword] = useState("");
-  const [authenticated, setAuthenticated] = useState(false);
+  const [authenticated] = useState(false);
   const [notice, setNotice] = useState("Admin authentication, live visitor tracking, and persistent access-key management require server-side secrets and a database binding. They are not enabled in this frontend-only stage.");
   function login(e: React.FormEvent) { e.preventDefault(); setNotice("Admin login is not connected. The password must be checked on the server using a deployment secret; it is deliberately not embedded in browser code."); }
   return <main className="relative min-h-screen bg-background px-4 py-8 sm:px-6"><div className="bg-matte pointer-events-none fixed inset-0 z-0" /><div className="relative z-10 mx-auto max-w-4xl">
