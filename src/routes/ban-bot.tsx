@@ -1,15 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ShieldAlert, KeyRound, Search, Instagram, Send, Music2, MessageCircle, ArrowLeft, LockKeyhole } from "lucide-react";
+import { ShieldAlert, KeyRound, Search, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/ban-bot")({ component: BanBot });
 
 const platforms = [
-  { id: "x", name: "X / Twitter", hint: "Username and linked phone number", icon: "𝕏" },
-  { id: "tiktok", name: "TikTok", hint: "Username and linked phone number", icon: "♪" },
-  { id: "whatsapp", name: "WhatsApp", hint: "WhatsApp number with country code", icon: "◉" },
-  { id: "telegram", name: "Telegram", hint: "Username and linked phone number", icon: "➤" },
-  { id: "instagram", name: "Instagram", hint: "Username and linked phone number", icon: "◎" },
+  { id: "x", name: "X / Twitter", hint: "Username and linked phone number", logo: "/platform-logos/x.svg" },
+  { id: "tiktok", name: "TikTok", hint: "Username and linked phone number", logo: "/platform-logos/tiktok.svg" },
+  { id: "whatsapp", name: "WhatsApp", hint: "WhatsApp number with country code", logo: "/platform-logos/whatsapp.svg" },
+  { id: "telegram", name: "Telegram", hint: "Username and linked phone number", logo: "/platform-logos/telegram.svg" },
+  { id: "instagram", name: "Instagram", hint: "Username and linked phone number", logo: "/platform-logos/instagram.svg" },
 ];
 
 function BanBot() {
@@ -46,7 +46,7 @@ function BanBot() {
             <ShieldAlert className="mt-0.5 size-5 shrink-0 text-amber-500" />
             <p className="text-muted-foreground">This workspace supports reviewing evidence and preparing reports for genuine policy violations. It cannot directly ban, hack, mass-report, or disrupt accounts.</p>
           </div>
-          {!unlocked ? (
+          {true ? (
             <form onSubmit={requestAccess} className="rounded-2xl border border-border bg-surface-raised p-5">
               <div className="mb-4 flex items-center gap-2 font-semibold"><KeyRound className="size-5 text-accent" /> Enter your admin-generated access key</div>
               <input value={key} onChange={(e) => setKey(e.target.value)} placeholder="Enter access key" autoComplete="off" className="mb-3 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-accent" />
@@ -57,7 +57,7 @@ function BanBot() {
           <div className="mt-7">
             <h2 className="mb-3 font-semibold">Choose a platform</h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {platforms.map((p) => <button key={p.id} onClick={() => setPlatform(p.id)} className={`rounded-2xl border p-4 text-left transition ${platform === p.id ? "border-accent bg-accent/10" : "border-border bg-surface-raised hover:border-accent/50"}`}><span className="mb-2 flex size-9 items-center justify-center rounded-xl bg-background text-xl font-bold">{p.icon}</span><span className="block font-semibold">{p.name}</span><span className="mt-1 block text-xs text-muted-foreground">{p.hint}</span></button>)}
+              {platforms.map((p) => <button key={p.id} onClick={() => setPlatform(p.id)} className={`rounded-2xl border p-4 text-left transition ${platform === p.id ? "border-accent bg-accent/10" : "border-border bg-surface-raised hover:border-accent/50"}`}><img src={p.logo} alt="" className="mb-2 size-9 rounded-xl" /><span className="block font-semibold">{p.name}</span><span className="mt-1 block text-xs text-muted-foreground">{p.hint}</span></button>)}
             </div>
           </div>
           <form onSubmit={submitCase} className="mt-6 space-y-4">
