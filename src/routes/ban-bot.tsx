@@ -14,7 +14,7 @@ const platforms = [
 
 function BanBot() {
   const [key, setKey] = useState("");
-  const [unlocked, setUnlocked] = useState(false);
+  const [unlocked] = useState(false);
   const [platform, setPlatform] = useState("x");
   const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
