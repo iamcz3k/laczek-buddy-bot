@@ -117,7 +117,7 @@ declare module '@tanstack/react-router' {
   }
 }
 
-const BanBotRoute = BanBotRouteImport.update({ id: '/ban-bot', path: '/ban-bot', getParentRoute: () => rootRouteImport } as any)\nconst AdminV3Route = AdminV3RouteImport.update({ id: '/adminv3', path: '/adminv3', getParentRoute: () => rootRouteImport } as any)\n\nconst rootRouteChildren: RootRouteChildren = {
+const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   CommandsRoute: CommandsRoute,
