@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ShieldAlert, KeyRound, Search, ArrowLeft } from "lucide-react";
+import { KeyRound, Search, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/ban-bot")({ component: BanBot });
 
@@ -42,10 +42,6 @@ function BanBot() {
             <img src="/laczek-logo.jpg" alt="LACZEK logo" className="size-14 rounded-full object-cover" />
             <div><p className="text-xs font-semibold uppercase tracking-[.2em] text-accent">LACZEK tools</p><h1 className="text-2xl font-bold">LaCzek Ban Bot</h1><p className="text-sm text-muted-foreground">Account safety & reporting workspace</p></div>
           </header>
-          <div className="mb-6 flex gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
-            <ShieldAlert className="mt-0.5 size-5 shrink-0 text-amber-500" />
-            <p className="text-muted-foreground">This workspace supports reviewing evidence and preparing reports for genuine policy violations. It cannot directly ban, hack, mass-report, or disrupt accounts.</p>
-          </div>
           {true ? (
             <form onSubmit={requestAccess} className="rounded-2xl border border-border bg-surface-raised p-5">
               <div className="mb-4 flex items-center gap-2 font-semibold"><KeyRound className="size-5 text-accent" /> Enter your admin-generated access key</div>
