@@ -1,21 +1,139 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowLeft, Users, KeyRound, Activity, LockKeyhole } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowLeft, Users, KeyRound, LockKeyhole, Copy, LogOut, RefreshCw, Ban } from "lucide-react";
+import { toast } from "sonner";
 
-export const Route = createFileRoute("/adminv3")({ component: AdminV3 });
+import { adminLogin, createAccessKey, getAdminDashboard, revokeAccessKey } from "@/lib/admin.functions";
+
+export const Route = createFileRoute("/adminv3")({
+  head: () => ({
+    meta: [
+      { title: "Admin Panel — LACZEK MD" },
+      { name: "description", content: "LACZEK MD admin panel for live visitors and access keys." },
+      { property: "og:title", content: "Admin Panel — LACZEK MD" },
+      { property: "og:description", content: "LACZEK MD admin panel." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
+  component: AdminV3,
+});
+
+type Dash = Awaited<ReturnType<typeof getAdminDashboard>>;
+
+function ago(iso: string) {
+  const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+  return s < 60 ? `${s}s ago` : s < 3600 ? `${Math.round(s / 60)}m ago` : `${Math.round(s / 3600)}h ago`;
+}
+
+function device(ua: string) {
+  if (/android/i.test(ua)) return "Android";
+  if (/iphone|ipad/i.test(ua)) return "iPhone/iPad";
+  if (/windows/i.test(ua)) return "Windows";
+  if (/mac os/i.test(ua)) return "Mac";
+  if (/linux/i.test(ua)) return "Linux";
+  return "Unknown";
+}
 
 function AdminV3() {
+  const [token, setToken] = useState<string | null>(null);
   const [password, setPassword] = useState("");
-  const [authenticated] = useState(false);
-  const [notice, setNotice] = useState("Admin authentication, live visitor tracking, and persistent access-key management require server-side secrets and a database binding. They are not enabled in this frontend-only stage.");
-  function login(e: React.FormEvent) { e.preventDefault(); setNotice("Admin login is not connected. The password must be checked on the server using a deployment secret; it is deliberately not embedded in browser code."); }
+  const [busy, setBusy] = useState(false);
+  const [dash, setDash] = useState<Dash | null>(null);
+  const [label, setLabel] = useState("");
+  const [days, setDays] = useState(7);
+
+  useEffect(() => { setToken(sessionStorage.getItem("lz-admin")); }, []);
+
+  const logout = useCallback(() => { sessionStorage.removeItem("lz-admin"); setToken(null); setDash(null); }, []);
+
+  const load = useCallback(async () => {
+    if (!token) return;
+    try { setDash(await getAdminDashboard({ data: { token } })); }
+    catch (e) { toast.error((e as Error).message); logout(); }
+  }, [token, logout]);
+
+  useEffect(() => {
+    if (!token) return;
+    load();
+    const t = setInterval(load, 15_000);
+    return () => clearInterval(t);
+  }, [token, load]);
+
+  async function login(e: React.FormEvent) {
+    e.preventDefault(); setBusy(true);
+    try {
+      const r = await adminLogin({ data: { password } });
+      if (!r.ok || !r.token) { toast.error("Wrong password"); return; }
+      sessionStorage.setItem("lz-admin", r.token); setToken(r.token); setPassword("");
+    } finally { setBusy(false); }
+  }
+
+  async function generate(e: React.FormEvent) {
+    e.preventDefault(); if (!token) return; setBusy(true);
+    try {
+      const row = await createAccessKey({ data: { token, label, days } });
+      await navigator.clipboard?.writeText(row.key).catch(() => {});
+      toast.success(`Key ${row.key} created and copied`); setLabel(""); load();
+    } catch (err) { toast.error((err as Error).message); } finally { setBusy(false); }
+  }
+
+  async function revoke(id: string) {
+    if (!token) return;
+    try { await revokeAccessKey({ data: { token, id } }); toast.success("Key revoked"); load(); }
+    catch (err) { toast.error((err as Error).message); }
+  }
+
+  const status = (k: Dash["keys"][number]) =>
+    k.revoked ? "Revoked" : k.expires_at && new Date(k.expires_at) < new Date() ? "Expired" : "Active";
+
   return <main className="relative min-h-screen bg-background px-4 py-8 sm:px-6"><div className="bg-matte pointer-events-none fixed inset-0 z-0" /><div className="relative z-10 mx-auto max-w-4xl">
     <Link to="/" className="mb-7 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Back to site</Link>
     <section className="card-matte rounded-[28px] border border-border p-6 sm:p-8">
-      <header className="mb-7 flex items-center gap-4"><img src="/laczek-logo.jpg" alt="LACZEK logo" className="size-14 rounded-full object-cover" /><div><p className="text-xs font-semibold uppercase tracking-[.2em] text-accent">Control center</p><h1 className="text-2xl font-bold">Admin Panel</h1><p className="text-sm text-muted-foreground">/adminv3 · LACZEK MD</p></div></header>
-      {!authenticated ? <form onSubmit={login} className="mx-auto max-w-md rounded-2xl border border-border bg-surface-raised p-5"><div className="mb-4 flex items-center gap-2 font-semibold"><LockKeyhole className="size-5 text-accent" /> Administrator sign in</div><input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Admin password" autoComplete="current-password" className="mb-3 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-accent" /><button className="w-full rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground">Sign in</button></form> : <div className="grid gap-4 sm:grid-cols-2"><div className="rounded-2xl border border-border bg-surface-raised p-5"><Users className="mb-3 size-6 text-accent"/><p className="font-semibold">Live visitors</p><p className="text-sm text-muted-foreground">Waiting for analytics storage connection</p></div><div className="rounded-2xl border border-border bg-surface-raised p-5"><KeyRound className="mb-3 size-6 text-accent"/><p className="font-semibold">Access keys</p><p className="text-sm text-muted-foreground">Persistent key generation is not configured</p></div></div>}
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">{[{icon:Users,title:"Live users",desc:"Active sessions and visitor counts"},{icon:KeyRound,title:"Key management",desc:"Generate, expire and revoke access keys"},{icon:Activity,title:"Audit activity",desc:"Review admin and report events"}].map(({icon:Icon,title,desc})=><div key={title} className="rounded-2xl border border-border p-4"><Icon className="mb-2 size-5 text-accent"/><p className="font-semibold">{title}</p><p className="mt-1 text-xs text-muted-foreground">{desc}</p></div>)}</div>
-      <p role="status" className="mt-6 rounded-xl border border-border bg-surface-raised p-4 text-xs leading-relaxed text-muted-foreground">{notice}</p>
+      <header className="mb-7 flex items-center gap-4"><img src="/laczek-logo.jpg" alt="LACZEK logo" className="size-14 rounded-full object-cover" /><div className="flex-1"><p className="text-xs font-semibold uppercase tracking-[.2em] text-accent">Control center</p><h1 className="text-2xl font-bold">Admin Panel</h1><p className="text-sm text-muted-foreground">LACZEK MD</p></div>
+        {token ? <button onClick={logout} className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground hover:text-foreground"><LogOut className="size-4" /> Sign out</button> : null}
+      </header>
+
+      {!token ? <form onSubmit={login} className="mx-auto max-w-md rounded-2xl border border-border bg-surface-raised p-5"><div className="mb-4 flex items-center gap-2 font-semibold"><LockKeyhole className="size-5 text-accent" /> Administrator sign in</div><input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Admin password" autoComplete="current-password" className="mb-3 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-accent" /><button disabled={busy} className="w-full rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground disabled:opacity-60">{busy ? "Checking…" : "Sign in"}</button></form> : <div className="space-y-6">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Stat icon={Users} label="Online now" value={dash?.live.length ?? "…"} />
+          <Stat icon={Users} label="Visitors (24h)" value={dash?.todayCount ?? "…"} />
+          <Stat icon={KeyRound} label="Active keys" value={dash ? dash.keys.filter((k) => status(k) === "Active").length : "…"} />
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface-raised p-5">
+          <div className="mb-3 flex items-center justify-between"><h2 className="font-semibold">Users on the website now</h2><button onClick={load} aria-label="Refresh" className="text-muted-foreground hover:text-foreground"><RefreshCw className="size-4" /></button></div>
+          {dash && dash.live.length === 0 ? <p className="text-sm text-muted-foreground">Nobody online right now.</p> : null}
+          <ul className="divide-y divide-border">{dash?.live.map((v) => <li key={v.session_id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"><span className="flex items-center gap-2"><span className="size-2 rounded-full bg-success" />{device(v.user_agent)} · <span className="font-mono text-muted-foreground">{v.path}</span></span><span className="text-xs text-muted-foreground">joined {ago(v.first_seen)} · seen {ago(v.last_seen)}</span></li>)}</ul>
+        </div>
+
+        <form onSubmit={generate} className="rounded-2xl border border-border bg-surface-raised p-5">
+          <h2 className="mb-3 font-semibold">Generate access key</h2>
+          <div className="grid gap-3 sm:grid-cols-[1fr_160px_auto]">
+            <input value={label} onChange={(e)=>setLabel(e.target.value)} maxLength={80} placeholder="Who is it for? (optional)" className="rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-accent" />
+            <select value={days} onChange={(e)=>setDays(Number(e.target.value))} className="rounded-xl border border-border bg-background px-3 py-3 outline-none focus:border-accent">
+              <option value={1}>1 day</option><option value={7}>7 days</option><option value={30}>30 days</option><option value={0}>Never expires</option>
+            </select>
+            <button disabled={busy} className="rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground disabled:opacity-60">Generate</button>
+          </div>
+        </form>
+
+        <div className="rounded-2xl border border-border bg-surface-raised p-5">
+          <h2 className="mb-3 font-semibold">Access keys</h2>
+          {dash && dash.keys.length === 0 ? <p className="text-sm text-muted-foreground">No keys yet.</p> : null}
+          <ul className="divide-y divide-border">{dash?.keys.map((k) => { const st = status(k); return <li key={k.id} className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+            <div><button onClick={() => { navigator.clipboard?.writeText(k.key); toast.success("Copied"); }} className="inline-flex items-center gap-2 font-mono font-semibold"><Copy className="size-3.5 text-muted-foreground" />{k.key}</button>
+              <p className="mt-0.5 text-xs text-muted-foreground">{k.label || "No label"} · used {k.uses}× · {k.expires_at ? `expires ${new Date(k.expires_at).toLocaleDateString()}` : "never expires"}</p></div>
+            <div className="flex items-center gap-2"><span className={`rounded-full px-2.5 py-0.5 text-xs ${st === "Active" ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>{st}</span>
+              {st === "Active" ? <button onClick={() => revoke(k.id)} className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs hover:border-destructive hover:text-destructive"><Ban className="size-3" /> Revoke</button> : null}</div>
+          </li>; })}</ul>
+        </div>
+      </div>}
     </section>
   </div></main>;
+}
+
+function Stat({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: number | string }) {
+  return <div className="rounded-2xl border border-border bg-surface-raised p-4"><Icon className="mb-2 size-5 text-accent" /><p className="text-2xl font-bold">{value}</p><p className="text-xs text-muted-foreground">{label}</p></div>;
 }

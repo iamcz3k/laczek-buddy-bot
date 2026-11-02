@@ -133,13 +133,32 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function VisitorHeartbeat() {
+  useEffect(() => {
+    let id = sessionStorage.getItem("lz-sid");
+    if (!id) { id = crypto.randomUUID(); sessionStorage.setItem("lz-sid", id); }
+    const sid = id;
+    const ping = () => {
+      if (document.visibilityState !== "visible" || location.pathname.startsWith("/adminv3")) return;
+      import("../lib/admin.functions").then(({ trackVisit }) =>
+        trackVisit({ data: { sessionId: sid, path: location.pathname, ua: navigator.userAgent.slice(0, 300) } }).catch(() => {}));
+    };
+    ping();
+    const t = setInterval(ping, 30_000);
+    return () => clearInterval(t);
+  }, []);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <VisitorHeartbeat />
       <Toaster position="bottom-center" theme="dark" />
     </QueryClientProvider>
   );
