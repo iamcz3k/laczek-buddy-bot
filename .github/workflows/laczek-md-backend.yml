@@ -1,0 +1,24 @@
+name: LACZEK MD Backend CI
+
+on:
+  push:
+    branches: ["feat/backend-connection"]
+    paths: ["bot/**", ".github/workflows/laczek-md-backend.yml"]
+  pull_request:
+    branches: ["main"]
+    paths: ["bot/**", ".github/workflows/laczek-md-backend.yml"]
+
+jobs:
+  backend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run check
+      - run: npm test

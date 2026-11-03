@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: laczek-md-runtime
+    runtime: node
+    rootDir: bot
+    plan: starter
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    disk:
+      name: laczek-md-session
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: BOT_NAME
+        value: LACZEK MD
+      - key: COMMAND_PREFIX
+        value: .
+      - key: AUTH_DIR
+        value: /var/data/auth
+      - key: DASHBOARD_API_KEY
+        generateValue: true
+      - key: LOG_LEVEL
+        value: info
